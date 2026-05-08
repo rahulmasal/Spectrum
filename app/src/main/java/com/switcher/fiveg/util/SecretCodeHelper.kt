@@ -20,28 +20,21 @@ object SecretCodeHelper {
 
     /**
      * Opens network settings using the most appropriate method for the device.
+     * @return true if successful, false otherwise
      */
-    fun openNetworkSettings(context: Context) {
+    fun openNetworkSettings(context: Context): Boolean {
         val manufacturer = DeviceDetector.detectManufacturer()
 
-        when (manufacturer) {
+        return when (manufacturer) {
             DeviceDetector.DeviceManufacturer.SAMSUNG -> {
-                if (!trySamsungMethod(context)) {
-                    openDirectSecretCode(context)
-                }
+                if (trySamsungMethod(context)) true else openDirectSecretCode(context)
             }
             DeviceDetector.DeviceManufacturer.XIAOMI,
             DeviceDetector.DeviceManufacturer.REALME -> {
-                if (!openDirectSecretCode(context)) {
-                    tryMethod2(context) ?: tryMethod1(context)
-                }
+                if (openDirectSecretCode(context)) true else (tryMethod2(context) || tryMethod1(context))
             }
             else -> {
-                if (!tryMethod2(context)) {
-                    if (!tryMethod1(context)) {
-                        openDirectSecretCode(context)
-                    }
-                }
+                if (tryMethod2(context)) true else if (tryMethod1(context)) true else openDirectSecretCode(context)
             }
         }
     }
