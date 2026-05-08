@@ -13,11 +13,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Dashboard screen.
+ * It provides real-time network status and signal history to the UI.
+ */
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val networkRepository: NetworkRepository
 ) : ViewModel() {
 
+    /**
+     * A Flow that emits the current network state (signal strength, type, carrier).
+     * Collected as a StateFlow to keep the UI in sync with the latest updates.
+     */
     val networkState: StateFlow<NetworkState> = networkRepository.observeNetworkState()
         .stateIn(
             scope = viewModelScope,
@@ -25,6 +33,9 @@ class DashboardViewModel @Inject constructor(
             initialValue = NetworkState()
         )
 
+    /**
+     * Exposes a list of recent signal strength readings for charting/history.
+     */
     val signalHistory: StateFlow<List<SignalHistoryEntity>> =
         networkRepository.getRecentHistory(50)
             .stateIn(

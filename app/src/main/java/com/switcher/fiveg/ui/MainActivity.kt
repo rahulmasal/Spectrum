@@ -35,6 +35,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    /**
+     * The entry point of the activity. This is where we initialize the UI and the splash screen.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -43,6 +46,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * The root Composable of the application.
+ * It manages theme, permissions, and navigation.
+ */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainApp() {

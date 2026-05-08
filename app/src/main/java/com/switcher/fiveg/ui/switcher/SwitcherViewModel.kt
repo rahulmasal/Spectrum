@@ -13,19 +13,31 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Switcher screen.
+ * It handles the selection of network modes and triggers the opening of system settings.
+ */
 @HiltViewModel
 class SwitcherViewModel @Inject constructor() : ViewModel() {
 
     private val _selectedMode = MutableStateFlow(PreferredNetworkMode.MODE_AUTO)
+    /**
+     * Exposes the currently selected network mode in the UI.
+     */
     val selectedMode: StateFlow<PreferredNetworkMode> = _selectedMode.asStateFlow()
 
+    /**
+     * Updates the selected network mode state.
+     */
     fun selectMode(mode: PreferredNetworkMode) {
         _selectedMode.value = mode
     }
 
     /**
-     * Attempts to open the network settings where the user can change their preferred network mode.
-     * Tries multiple approaches since this varies by device manufacturer.
+     * Attempts to open the system's hidden network settings.
+     * Since Android does not provide a public API to change network modes programmatically
+     * for non-system apps, we guide the user to the internal 'RadioInfo' settings.
+     * Tries multiple intent strategies to support various device manufacturers (Samsung, Pixel, etc.).
      */
     fun applyMode(context: Context) {
         val strategies = listOf(
