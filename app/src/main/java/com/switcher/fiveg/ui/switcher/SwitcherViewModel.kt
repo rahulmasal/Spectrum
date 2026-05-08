@@ -1,9 +1,9 @@
 package com.switcher.fiveg.ui.switcher
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.provider.Settings
+import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.switcher.fiveg.domain.model.PreferredNetworkMode
@@ -34,76 +34,82 @@ class SwitcherViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
-     * Attempts to open the system's hidden network settings.
-     * Since Android does not provide a public API to change network modes programmatically
-     * for non-system apps, we guide the user to the internal 'RadioInfo' settings.
-     * Tries multiple intent strategies to support various device manufacturers (Samsung, Pixel, etc.).
+     * Method 1: Target for Android 11 and below.
+     * Most devices use the standard RadioInfo activity.
      */
-    fun applyMode(context: Context) {
-        val strategies = listOf(
-            // Strategy 1: RadioInfo activity (most direct)
-            {
-                val intent = Intent().apply {
-                    component = ComponentName(
-                        "com.android.settings",
-                        "com.android.settings.RadioInfo"
-                    )
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                context.startActivity(intent)
-                true
-            },
-            // Strategy 2: TestingSettings
-            {
-                val intent = Intent().apply {
-                    component = ComponentName(
-                        "com.android.settings",
-                        "com.android.settings.TestingSettings"
-                    )
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                context.startActivity(intent)
-                true
-            },
-            // Strategy 3: Testing menu via secret code
-            {
-                val intent = Intent("android.provider.Telephony.SECRET_CODE").apply {
-                    data = android.net.Uri.parse("android_secret_code://4636")
-                }
-                context.sendBroadcast(intent)
-                true
-            },
-            // Strategy 4: Standard network settings
-            {
-                val intent = Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                context.startActivity(intent)
-                true
-            },
-            // Strategy 5: Wireless settings fallback
-            {
-                val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                context.startActivity(intent)
-                true
-            }
-        )
+    fun openMethod1(context: Context) {
+        try {
+            val intent = Intent()
+            intent.setClassName("com.android.settings", "com.android.settings.RadioInfo")
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            fallback(context)
+        }
+    }
 
-        for (strategy in strategies) {
+    /**
+     * Method 2: Target for Android 11 and above.
+     * Some manufacturers changed the entry point or added restrictions.
+     */
+    fun openMethod2(context: Context) {
+        try {
+            val intent = Intent()
+            intent.setClassName("com.android.settings", "com.android.settings.Settings\$RadioInfoControlActivity")
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Try another common 11+ variant
             try {
-                if (strategy()) return
-            } catch (e: Exception) {
-                continue
+                val intent = Intent()
+                intent.setClassName("com.android.settings", "com.android.settings.TestingSettings")
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            } catch (e2: Exception) {
+                fallback(context)
             }
         }
+    }
 
-        // All strategies failed
-        Toast.makeText(
-            context,
-            "Could not open network settings. Try dialing *#*#4636#*#* in your Phone app.",
-            Toast.LENGTH_LONG
-        ).show()
+    /**
+     * Method for Samsung devices.
+     * Samsung often blocks the standard RadioInfo but has its own secret menu.
+     */
+    fun openSamsungMethod(context: Context) {
+        try {
+            val intent = Intent()
+            intent.setClassName("com.samsung.android.app.telephonyui", "com.samsung.android.app.telephonyui.hiddennetworksetting.MainActivity")
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            fallback(context)
+        }
+    }
+
+    /**
+     * Universal fallback using the dialer secret code.
+     */
+    private fun fallback(context: Context) {
+        try {
+            val intent = Intent(Intent.ACTION_DIAL).apply {
+                data = Uri.parse("tel:*#*#4636#*#*")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(intent)
+            Toast.makeText(context, "If settings didn't open, manually dial *#*#4636#*#*", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Unable to open settings on this device.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * General apply method that tries to be smart based on OS version.
+     */
+    fun applyMode(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            openMethod2(context)
+        } else {
+            openMethod1(context)
+        }
     }
 }
