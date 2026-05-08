@@ -30,7 +30,7 @@ import com.switcher.fiveg.ui.settings.SettingsScreen
 import com.switcher.fiveg.ui.settings.SettingsViewModel
 import com.switcher.fiveg.ui.speedtest.SpeedTestScreen
 import com.switcher.fiveg.ui.switcher.SwitcherScreen
-import com.switcher.fiveg.ui.theme.FiveGSwitcherTheme
+import com.switcher.fiveg.ui.theme.SpectrumTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -50,7 +50,7 @@ fun MainApp() {
     val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
     val dynamicColor by settingsViewModel.dynamicColor.collectAsStateWithLifecycle()
 
-    FiveGSwitcherTheme(themeMode = themeMode, dynamicColor = dynamicColor) {
+    SpectrumTheme(themeMode = themeMode, dynamicColor = dynamicColor) {
         val permissions = buildList {
             add(Manifest.permission.READ_PHONE_STATE)
             add(Manifest.permission.ACCESS_FINE_LOCATION)

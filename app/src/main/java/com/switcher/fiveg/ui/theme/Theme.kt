@@ -54,7 +54,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun FiveGSwitcherTheme(
+fun SpectrumTheme(
     themeMode: ThemeMode = ThemeMode.DARK,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
