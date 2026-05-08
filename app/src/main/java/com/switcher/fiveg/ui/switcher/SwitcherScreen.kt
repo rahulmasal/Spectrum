@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Settings
@@ -63,6 +64,12 @@ fun SwitcherScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                // Device hint
+                Text(
+                    text = viewModel.getDeviceHint(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
 
@@ -96,6 +103,16 @@ fun SwitcherScreen(
             delay = 400
         )
 
+        // Method 4: Direct Secret Code Button
+        MethodButton(
+            title = "Method 4: Direct Secret Code",
+            subtitle = "Universal: Dial *#*#4636#*#* to open settings",
+            icon = Icons.Default.Dialpad,
+            onClick = { viewModel.openDirectSecretCode(context) },
+            isVisible = isVisible,
+            delay = 500
+        )
+
         Spacer(modifier = Modifier.height(8.dp))
 
         // Info card
@@ -126,8 +143,8 @@ fun SwitcherScreen(
                         )
                     }
                     Text(
-                        text = "1. Select the Method that matches your Android version.\n" +
-                                "2. Look for 'Set Preferred Network Type' in the menu.\n" +
+                        text = "1. Select any method above to access hidden settings.\n" +
+                                "2. In the menu, select 'Set Preferred Network Type'.\n" +
                                 "3. Choose 'NR Only' for 5G only or 'LTE Only' for 4G only.\n\n" +
                                 "⚠️ Warning: 'NR Only' will disable 4G/3G/2G. If 5G coverage is lost, you will have no signal.",
                         style = MaterialTheme.typography.bodySmall,
