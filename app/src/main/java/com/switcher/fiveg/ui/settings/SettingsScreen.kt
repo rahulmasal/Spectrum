@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.switcher.fiveg.BuildConfig
 import com.switcher.fiveg.data.preferences.ThemeMode
 import com.switcher.fiveg.ui.components.GlassCard
 import kotlinx.coroutines.delay
@@ -106,7 +107,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     Text("About", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Version", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("1.0.0", style = MaterialTheme.typography.bodyMedium)
+                        Text(BuildConfig.VERSION_NAME, style = MaterialTheme.typography.bodyMedium)
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Developer", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
