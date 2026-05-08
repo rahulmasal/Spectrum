@@ -40,9 +40,33 @@ object SecretCodeHelper {
     }
 
     /**
-     * Direct secret code method - opens dialer with *#*#4636#*#*
+     * Direct secret code method - auto-dials *#*#4636#*#* using ACTION_CALL,
+     * falls back to ACTION_DIAL if CALL_PHONE permission is not granted.
      */
     fun openDirectSecretCode(context: Context): Boolean {
+        // Try ACTION_CALL first - auto-dials and triggers secret code
+        if (tryActionCall(context)) return true
+        // Fallback: ACTION_DIAL - user presses dial
+        return tryActionDial(context)
+    }
+
+    private fun tryActionCall(context: Context): Boolean {
+        return try {
+            val intent = Intent(Intent.ACTION_CALL).apply {
+                data = Uri.parse("tel:$SECRET_CODE")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(intent)
+            true
+        } catch (e: SecurityException) {
+            // CALL_PHONE permission not granted
+            false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun tryActionDial(context: Context): Boolean {
         return try {
             val intent = Intent(Intent.ACTION_DIAL).apply {
                 data = Uri.parse("tel:$SECRET_CODE")

@@ -106,7 +106,7 @@ fun SwitcherScreen(
         // Method 4: Direct Secret Code Button
         MethodButton(
             title = "Method 4: Direct Secret Code",
-            subtitle = "Universal: Dial *#*#4636#*#* to open settings",
+            subtitle = "Universal: Auto-dials *#*#4636#*#*",
             icon = Icons.Default.Dialpad,
             onClick = { viewModel.openDirectSecretCode(context) },
             isVisible = isVisible,
